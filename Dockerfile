@@ -23,6 +23,7 @@ USER root
 RUN mamba install --quiet --yes \
        'ipython-sql' \
        'psycopg2' \
+       'sqlalchemy' \
        'otter-grader' && \
     mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \

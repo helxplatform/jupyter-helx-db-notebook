@@ -35,4 +35,4 @@ RUN mamba install --quiet --yes \
 USER $NB_USER
 
 
-#ENTRYPOINT [start-notebook.sh, "--NotebookApp.token=", "--ip='*'", "--NotebookApp.base_url=${NB_PREFIX}" "--NotebookApp.allow_origin='*']"
+CMD start-notebook.sh --NotebookApp.token= --ip='*' --NotebookApp.base_url=${NB_PREFIX} --NotebookApp.allow_origin='*'

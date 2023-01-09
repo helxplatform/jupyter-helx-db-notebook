@@ -13,23 +13,20 @@ ENV CONDA_DIR=/opt/conda \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8
-    #\JULIA_PKGDIR=/opt/julia
 
 ENV PATH="${CONDA_DIR}/bin:${PATH}" \
     HOME="/home/${NB_USER}"
 
 USER root
 
-RUN mamba install --quiet --yes \
+RUN pip install \
        'ipython-sql' \
-       'psycopg2' \
+       'psycopg2-binary' \
        'sqlalchemy' \
+       'jupyter-server-terminals' \
        'otter-grader' && \
-    mamba clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \
-    #fix-permissions "${JULIA_PKGDIR}" && \
     fix-permissions "${HOME}" && \
-    #fix-permissions "/etc/jupyter" && \
     fix-permissions "/home/${NB_USER}"
 
 USER $NB_USER

@@ -1,4 +1,4 @@
-FROM jupyter/scipy-notebook
+FROM jupyter/scipy-notebook:x86_64-lab-3.5.1
 
 ARG NB_USER="jovyan"
 ARG NB_UID="30000"
@@ -32,4 +32,4 @@ RUN pip install \
 USER $NB_USER
 
 
-CMD start-notebook.sh --NotebookApp.token= --ip='*' --NotebookApp.base_url=${NB_PREFIX} --NotebookApp.allow_origin='*'
+#ENTRYPOINT [start-notebook.sh, "--NotebookApp.token=", "--ip='*'", "--NotebookApp.base_url=${NB_PREFIX}" "--NotebookApp.allow_origin='*']"

@@ -22,9 +22,10 @@ USER root
 RUN pip install \
        'ipython-sql' \
        'psycopg2-binary' \
-       'sqlalchemy' \
        'jupyter-server-terminals' \
-       'otter-grader' && \
+       'sqlalchemy' \
+       'tensorflow' \
+       'scikit-learn' && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "${HOME}" && \
     fix-permissions "/home/${NB_USER}"

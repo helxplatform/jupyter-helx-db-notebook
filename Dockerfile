@@ -19,35 +19,26 @@ ENV CONDA_DIR=/opt/conda \
 ENV PATH="${CONDA_DIR}/bin:${PATH}" \
     HOME="/home/${NB_USER}"
 
+COPY start-jupyter-datascience-db.sh /usr/local/bin/start-jupyter-datascience-db.sh
+COPY etc-jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
+
 USER root
 
-COPY start-jupyter-datascience-db.sh /usr/local/bin
-COPY etc-jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
-COPY jovyan-jupyter_notebook_config.py /home/jovyan/.jupyter/jupyter_notebook_config.py
-COPY jovyan-jupyter_server_config.py /home/jovyan/.jupyter/jupyter_server_config.py
+RUN chmod 755 /usr/local/bin/start-jupyter-datascience-db.sh
 
-RUN chmod 755 /usr/local/bin/start-jupyter-datascience-db.sh && \
-    chmod 644 /etc/jupyter/jupyter_notebook_config.py && \
-    chmod 644 /etc/jupyter/jupyter_server_config.py
-
-RUN conda install --yes --prefix $CONDA_ENV -c conda-forge \
-       'ipython' \
-       'ipywidgets' \
+RUN pip install \
        'ipython-sql' \
        'psycopg2-binary' \
+       'jupyter-server-terminals' \
        'sqlalchemy' \
        'tensorflow' \
-       'scikit-learn'
-
-RUN conda install 'pip' && \
-    /opt/conda/bin/pip3 install 'jupyter-server-terminals' && \
+       'scikit-learn' && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "${HOME}" && \
-    fix-permissions "/home/${NB_USER}" && \
-    fix-permissions "/home/$USER"
+    fix-permissions "/home/${NB_USER}"
 
-USER ${NB_USER}
+USER $NB_USER
 
-ENTRYPOINT /usr/local/bin/start-jupyter-datascience-db.sh
-
-#ENTRYPOINT [start-notebook.sh, "--NotebookApp.token=", "--ip='*'", "--NotebookApp.base_url=${NB_PREFIX}" "--NotebookApp.allow_origin='*']"
+# Start notebook
+RUN cd "/home/${NB_USER}"
+ENTRYPOINT [start-notebook.sh, "--NotebookApp.token=", "--ip='*'", "--NotebookApp.base_url=${NB_PREFIX}" "--NotebookApp.allow_origin='*', --NotebookApp.notebook_dir="/home/$USER_NAME"]"

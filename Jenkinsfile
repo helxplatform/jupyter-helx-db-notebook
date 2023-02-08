@@ -73,7 +73,7 @@ spec:
             steps {
                 script {
                     container(name: 'go', shell: '/bin/bash') {
-                        if (BRANCH_NAME.equals("master") || BRANCH_NAME.equals("main" ) {
+                        if (BRANCH_NAME.equals("master") || BRANCH_NAME.equals("main" )) {
                             CCV = go.ccv()
                         }
                     }

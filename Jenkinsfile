@@ -1,4 +1,4 @@
-library 'pipeline-utils@go_main_branch_fix'
+@Library('pipeline-utils@go_main_branch_fix') _
 
 CCV = ""
 

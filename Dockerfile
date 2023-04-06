@@ -1,10 +1,11 @@
-FROM jupyter/scipy-notebook:x86_64-lab-3.5.1
+ARG SCIPY_NOTEBOOK_IMAGE_TAG=x86_64-lab-3.5.1
+FROM jupyter/scipy-notebook:$SCIPY_NOTEBOOK_IMAGE_TAG
 
 ARG NB_USER="jovyan"
 ARG NB_UID="30000"
-ARG NB_GID="1136"
+ARG NB_GID="0"
 ARG CONDA_ENV=/opt/conda
-ARG HOME_DIR=/home/jovyan
+ARG HOME_DIR=/home/$NB_USER
 
 # Configure environment
 ENV CONDA_DIR=/opt/conda \
@@ -19,13 +20,7 @@ ENV CONDA_DIR=/opt/conda \
 ENV PATH="${CONDA_DIR}/bin:${PATH}" \
     HOME="/home/${NB_USER}"
 
-COPY start-jupyter-datascience-db.sh /usr/local/bin/start-jupyter-datascience-db.sh
-COPY etc-jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
-
 USER root
-
-RUN chmod 755 /usr/local/bin/start-jupyter-datascience-db.sh
-
 RUN pip install \
        'ipython-sql' \
        'psycopg2-binary' \
@@ -34,11 +29,10 @@ RUN pip install \
        'tensorflow' \
        'scikit-learn' && \
     fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "${HOME}" && \
-    fix-permissions "/home/${NB_USER}"
+    fix-permissions "/home" && \
+    chmod g+w /etc/passwd
+COPY root /
 
+WORKDIR /
 USER $NB_USER
-
-# Start notebook
-RUN cd "/home/${NB_USER}"
-ENTRYPOINT [start-notebook.sh, "--NotebookApp.token=", "--ip='*'", "--NotebookApp.base_url=${NB_PREFIX}" "--NotebookApp.allow_origin='*', --NotebookApp.notebook_dir="/home/$USER_NAME"]"
+CMD ["/init.sh"]

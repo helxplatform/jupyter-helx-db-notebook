@@ -30,7 +30,7 @@ RUN pip install \
        'scikit-learn' && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home" && \
-    chmod g+w /etc/passwd
+    chmod g+w /etc/passwd /etc/group
 COPY root /
 
 WORKDIR /

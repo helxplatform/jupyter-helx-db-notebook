@@ -15,16 +15,25 @@ DELETE_DEFAULT_USER_HOME_IF_UNUSED=${DELETE_DEFAULT_USER_HOME_IF_UNUSED-"yes"}
 DEFAULT_USER="jovyan"
 declare -i DEFAULT_UID=1000
 declare -i DEFAULT_GID=100
+declare -i CURRENT_UID=`id -u`
+declare -i CURRENT_GID=`id -g`
 
-if [ `id -u` -ne 0 ]; then
+echo "running as UID=$CURRENT_UID GID=$CURRENT_GID"
+
+if [ $CURRENT_UID -ne 0 ]; then
   echo "not running as root"
-  if [[ `id -u` -ne $DEFAULT_UID || "$USER" != "$DEFAULT_USER" ]]; then
+  if [[ $CURRENT_UID -ne $DEFAULT_UID || "$USER" != "$DEFAULT_USER" ]]; then
     echo "not running as uid=$DEFAULT_UID or USER!=\"$DEFAULT_USER\""
     # Modify user entry in /etc/passwd.
     cp /etc/passwd /tmp/passwd
-    sed -i -e "s/^$DEFAULT_USER\:x\:$DEFAULT_UID\:$DEFAULT_GID\:\:\/home\/$DEFAULT_USER/$USER\:x\:`id -u`\:`id -g`\:\:\/home\/$USER/" /tmp/passwd
+    sed -i -e "s/^$DEFAULT_USER\:x\:$DEFAULT_UID\:$DEFAULT_GID\:\:\/home\/$DEFAULT_USER/$USER\:x\:$CURRENT_UID\:GID=$CURRENT_GID\:\:\/home\/$USER/" /tmp/passwd
     cp /tmp/passwd /etc/passwd
     rm /tmp/passwd
+    # Add user to users group in /etc/group.
+    cp /etc/group /tmp/group
+    sed -i -e "s/^users\:x\:100\:/users\:x\:100\:$USER/" /tmp/group
+    cp /tmp/group /etc/group
+    rm /tmp/group
 
     if [[ -d /home/$DEFAULT_USER ]]; then
       if [[ "$USER" != "$DEFAULT_USER" && "$DELETE_DEFAULT_USER_HOME_IF_UNUSED" == "yes" ]]; then
@@ -58,4 +67,4 @@ cd $HOME
 # create the directory if it doesn't exist.
 export XDG_CACHE_HOME=$HOME/.cache
 
-jupyter server --ServerApp.token= --ServerApp.ip='*' --ServerApp.base_url=${NB_PREFIX}/ --ServerApp.allow_origin="*" --ServerApp.notebook_dir="/home/$USER"
+jupyter server --ServerApp.token= --ServerApp.ip='*' --ServerApp.base_url=${NB_PREFIX} --ServerApp.allow_origin="*" --ServerApp.notebook_dir="/home/$USER"

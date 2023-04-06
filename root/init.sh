@@ -58,4 +58,4 @@ cd $HOME
 # create the directory if it doesn't exist.
 export XDG_CACHE_HOME=$HOME/.cache
 
-jupyter server --ServerApp.token= --ServerApp.ip='*' --ServerApp.base_url=${NB_PREFIX} --ServerApp.allow_origin="*" --ServerApp.notebook_dir="/home/$USER"
+jupyter server --ServerApp.token= --ServerApp.ip='*' --ServerApp.base_url=${NB_PREFIX}/ --ServerApp.allow_origin="*" --ServerApp.notebook_dir="/home/$USER"

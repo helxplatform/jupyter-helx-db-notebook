@@ -21,16 +21,14 @@ help: ## This help.
 .DEFAULT_GOAL := help
 
 build: ## Build the image.
-	    # docker build --pull --build-arg \
-		#   RSTUDIO_SOURCE_TAG=${RSTUDIO_SOURCE_TAG} \
-		#   -t ${APP_NAME} .
-	    docker build --pull -t ${APP_NAME} .
+	    docker build --pull \
+		--build-arg SCIPY_NOTEBOOK_IMAGE_TAG=${SCIPY_NOTEBOOK_IMAGE_TAG} \
+		-t ${APP_NAME} .
 
 build-nc: ## Build the image without caching.
-	    # docker build --pull --no-cache --build-arg \
-		#   RSTUDIO_SOURCE_TAG=${RSTUDIO_SOURCE_TAG} \
-		#   -t ${APP_NAME} .
-	    docker build --pull --no-cache -t ${APP_NAME} .
+	    docker build --pull --no-cache \
+		--build-arg SCIPY_NOTEBOOK_IMAGE_TAG=${SCIPY_NOTEBOOK_IMAGE_TAG} \
+		-t ${APP_NAME} .
 
 run: ## Run container on port configured in `config.env`
 	mkdir -p ./host

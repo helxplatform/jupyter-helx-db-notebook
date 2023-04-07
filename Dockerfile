@@ -1,4 +1,4 @@
-ARG SCIPY_NOTEBOOK_IMAGE_TAG=x86_64-lab-3.5.1
+ARG SCIPY_NOTEBOOK_IMAGE_TAG=x86_64-lab-latest
 FROM jupyter/scipy-notebook:$SCIPY_NOTEBOOK_IMAGE_TAG
 
 ARG NB_USER="jovyan"
@@ -30,6 +30,7 @@ RUN pip install \
        'scikit-learn' && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home" && \
+    fix-permissions "/etc/jupyter" && \
     chmod g+w /etc/passwd /etc/group
 COPY root /
 

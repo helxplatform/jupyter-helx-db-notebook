@@ -26,7 +26,7 @@ if [ $CURRENT_UID -ne 0 ]; then
     echo "not running as uid=$DEFAULT_UID or USER!=\"$DEFAULT_USER\""
     # Modify user entry in /etc/passwd.
     cp /etc/passwd /tmp/passwd
-    sed -i -e "s/^$DEFAULT_USER\:x\:$DEFAULT_UID\:$DEFAULT_GID\:\:\/home\/$DEFAULT_USER/$USER\:x\:$CURRENT_UID\:GID=$CURRENT_GID\:\:\/home\/$USER/" /tmp/passwd
+    sed -i -e "s/^$DEFAULT_USER\:x\:$DEFAULT_UID\:$DEFAULT_GID\:\:\/home\/$DEFAULT_USER/$USER\:x\:$CURRENT_UID\:$CURRENT_GID\:\:\/home\/$USER/" /tmp/passwd
     cp /tmp/passwd /etc/passwd
     rm /tmp/passwd
     # Add user to users group in /etc/group.
@@ -67,4 +67,9 @@ cd $HOME
 # create the directory if it doesn't exist.
 export XDG_CACHE_HOME=$HOME/.cache
 
-jupyter server --ServerApp.token= --ServerApp.ip='*' --ServerApp.base_url=${NB_PREFIX} --ServerApp.allow_origin="*" --ServerApp.notebook_dir="/home/$USER"
+# Run "jupyter -h" to see some options (notebook, server, lab, etc.).  To get more
+# options run "jupyter server --help-all".
+jupyter server --IdentityProvider.token= --ServerApp.ip='*' \
+    --ServerApp.base_url=${NB_PREFIX} --ServerApp.allow_origin="*" \
+    --ServerApp.root_dir="/home/$USER" --no-browser \
+    --ServerApp.default_url=${NB_PREFIX}/lab

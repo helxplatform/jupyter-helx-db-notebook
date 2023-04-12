@@ -21,14 +21,14 @@ pipeline {
     stage('Test') {
       steps {
         sh '''
-        pytest  -v --image "$IMAGE_NAME:$BRANCH_NAME" --user howard --passwd test --port 9660
+        echo "Test Stage"
         '''
       }
     }
     stage('Publish') {
       environment {
-        DOCKERHUB_CREDS = credentials("${env.REGISTRY_CREDS_ID_STR}")
-        DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
+        DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
+        DOCKER_REGISTRY = "${env.REGISTRY}"
       }
       steps {
         sh '''

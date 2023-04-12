@@ -10,8 +10,6 @@ RUN pip install \
        'tensorflow' \
        'scikit-learn' && \
     fix-permissions "${CONDA_DIR}" /home
-COPY root /
 
 WORKDIR /
 USER $NB_USER
-CMD ["/init.sh"]

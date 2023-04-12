@@ -7,9 +7,10 @@ RUN pip install \
        'psycopg2-binary' \
        'jupyter-server-terminals' \
        'sqlalchemy' \
-       'tensorflow' \
        'scikit-learn' && \
-    fix-permissions "${CONDA_DIR}" /home
+    fix-permissions "${CONDA_DIR}"
+# Removed tensorflow from installation above.  A 500+MB package adds a lot of bloat if not used.
+#       'tensorflow' \
 
 WORKDIR /
 USER $NB_USER

@@ -7,8 +7,8 @@ RUN pip install \
        'psycopg2-binary' \
        'jupyter-server-terminals' \
        'sqlalchemy' \
-       'scikit-learn' && \
        'tensorflow' \
+       'scikit-learn' && \
     fix-permissions "${CONDA_DIR}"
 
 WORKDIR /

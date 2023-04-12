@@ -1,6 +1,8 @@
 pipeline {
   agent {
+    cloud 'kubernetes'
     label 'agent-docker'
+    defaultContainer "agent-docker"
   }
   environment {
     REG_OWNER="helxplatform"

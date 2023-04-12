@@ -29,11 +29,6 @@ if [ $CURRENT_UID -ne 0 ]; then
     sed -i -e "s/^$DEFAULT_USER\:x\:$DEFAULT_UID\:$DEFAULT_GID\:\:\/home\/$DEFAULT_USER/$USER\:x\:$CURRENT_UID\:$CURRENT_GID\:\:\/home\/$USER/" /tmp/passwd
     cp /tmp/passwd /etc/passwd
     rm /tmp/passwd
-    # Add user to users group in /etc/group.
-    cp /etc/group /tmp/group
-    sed -i -e "s/^users\:x\:100\:/users\:x\:100\:$USER/" /tmp/group
-    cp /tmp/group /etc/group
-    rm /tmp/group
 
     if [[ -d /home/$DEFAULT_USER ]]; then
       if [[ "$USER" != "$DEFAULT_USER" && "$DELETE_DEFAULT_USER_HOME_IF_UNUSED" == "yes" ]]; then
@@ -69,7 +64,7 @@ export XDG_CACHE_HOME=$HOME/.cache
 
 # Run "jupyter -h" to see some options (notebook, server, lab, etc.).  To get more
 # options run "jupyter server --help-all".
-jupyter server --IdentityProvider.token= --ServerApp.ip='*' \
+jupyter lab --IdentityProvider.token= --ServerApp.ip='*' \
     --ServerApp.base_url=${NB_PREFIX} --ServerApp.allow_origin="*" \
     --ServerApp.root_dir="/home/$USER" --no-browser \
     --ServerApp.default_url=${NB_PREFIX}/lab

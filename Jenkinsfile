@@ -1,43 +1,95 @@
+@Library('pipeline-utils@master') _
+
+CCV = ""
+
 pipeline {
   agent {
-    label 'agent-docker'
-  }
-  environment {
-    REG_OWNER="helxplatform"
-    REG_APP="jupyter-datascience-db"
-    COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
-    IMAGE_NAME="${REG_OWNER}/${REG_APP}"
-    TAG1="$BRANCH_NAME"
-    TAG2="$COMMIT_HASH"
-  }
-  stages {
-    stage('Build') {
-      steps {
-        sh '''
-        docker build -t $IMAGE_NAME:$TAG1 -t $IMAGE_NAME:$TAG2 .
-        '''
-      }
+    kubernetes {
+        yaml '''
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: jnlp
+    workingDir: /home/jenkins/agent
+  - name: kaniko
+    workingDir: /home/jenkins/agent
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: "1.0"
+        memory: "4Gi"
+        ephemeral-storage: "7Gi"
+      limits:
+        cpu: "1.0"
+        memory: "4Gi"
+        ephemeral-storage: "7Gi"
+    command:
+    - /busybox/cat
+    tty: true
+    volumeMounts:
+    - name: jenkins-docker-cfg
+      mountPath: /kaniko/.docker
+  - name: go
+    workingDir: /home/jenkins/agent
+    image: golang:1.19.1
+    imagePullPolicy: Always
+    resources:
+      requests:
+        cpu: "512m"
+        memory: "512Mi"
+        ephemeral-storage: "256Mi"
+      limits:
+        cpu: "512m"
+        memory: "1024Mi"
+        ephemeral-storage: "256Mi"
+    command:
+    - /bin/bash
+    tty: true
+  volumes:
+  - name: jenkins-docker-cfg
+    secret:
+      secretName: rencibuild-imagepull-secret
+      items:
+      - key: .dockerconfigjson
+        path: config.json
+'''
+        }
     }
-    stage('Test') {
-      steps {
-        sh '''
-        echo "Test Stage"
-        '''
-      }
-    }
-    stage('Publish') {
-      environment {
+    environment {
+        PATH = "/busybox:/kaniko:/ko-app/:$PATH"
+        GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
-        DOCKER_REGISTRY = "${env.REGISTRY}"
-      }
-      steps {
-        sh '''
-        echo publish
-        echo $DOCKERHUB_CREDS_PSW | docker login -u $DOCKERHUB_CREDS_USR --password-stdin $DOCKER_REGISTRY
-        docker push $IMAGE_NAME:$TAG1
-        docker push $IMAGE_NAME:$TAG2
-        '''
-      }
+        REGISTRY = "${env.REGISTRY}"
+        REG_OWNER="helxplatform/jupyter"
+        REPO_NAME="helx-db-notebook"
+        COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
+        IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REPO_NAME}"
     }
-  }
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    container(name: 'go', shell: '/bin/bash') {
+                        if (BRANCH_NAME.equals("master") || BRANCH_NAME.equals("main" )) {
+                            CCV = go.ccv()
+                        }
+                    }
+                    container(name: 'kaniko', shell: '/busybox/sh') {
+                        def tagsToPush = ["$IMAGE_NAME:$BRANCH_NAME", "$IMAGE_NAME:$COMMIT_HASH"]
+                        if (CCV != null && !CCV.trim().isEmpty() && BRANCH_NAME.equals("master") || BRANCH_NAME.equals("main")) {
+                            tagsToPush.add("$IMAGE_NAME:$CCV")
+                        } else if (BRANCH_NAME.equals("develop")) {
+                            def now = new Date()
+                            def currTimestamp = now.format("yyyy-MM-dd'T'HH.mm'Z'", TimeZone.getTimeZone('UTC'))
+                            tagsToPush.add("$IMAGE_NAME:$currTimestamp")
+                        }
+                        kaniko.buildAndPush("./Dockerfile", tagsToPush, true)
+                    }
+                }
+            }
+        }
+    }
 }

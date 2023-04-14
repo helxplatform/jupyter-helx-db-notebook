@@ -1,5 +1,5 @@
 ARG BASE_IMAGE_TAG=latest
-FROM containers.renci.org/helxplatform/jupyter/datascience-notebook:$BASE_IMAGE_TAG
+FROM containers.renci.org/helxplatform/jupyter/helx-notebook:$BASE_IMAGE_TAG
 
 USER root
 RUN pip install \

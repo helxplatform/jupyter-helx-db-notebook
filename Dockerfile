@@ -1,4 +1,4 @@
-ARG BASE_IMAGE_TAG=latest
+ARG BASE_IMAGE_TAG=202341141954
 FROM containers.renci.org/helxplatform/jupyter/helx-notebook:$BASE_IMAGE_TAG
 
 USER root

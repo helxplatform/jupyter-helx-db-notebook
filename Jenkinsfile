@@ -63,8 +63,8 @@ spec:
         GITHUB_CREDS = credentials("${env.GITHUB_CREDS_ID_STR}")
         DOCKERHUB_CREDS = credentials("${env.CONTAINERS_REGISTRY_CREDS_ID_STR}")
         REGISTRY = "${env.REGISTRY}"
-        REG_OWNER="helxplatform"
-        REPO_NAME="jupyter-datascience-db"
+        REG_OWNER="helxplatform/jupyter"
+        REPO_NAME="helx-db-notebook"
         COMMIT_HASH="${sh(script:"git rev-parse --short HEAD", returnStdout: true).trim()}"
         IMAGE_NAME="${REGISTRY}/${REG_OWNER}/${REPO_NAME}"
     }
